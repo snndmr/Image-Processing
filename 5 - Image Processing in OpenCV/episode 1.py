@@ -13,9 +13,7 @@ while cap.isOpened():
     # V_OpenCV = V_normal * 2.55
     # (H – 10, S – 20, V – 20) to(H + 10, S + 20, V + 20)
 
-    # 100, 255, 202
-    # 99, 218, 239
-    lower_blue = np.array([90, 180, 180])
+    lower_blue = np.array([90, 200, 80])
     upper_blue = np.array([110, 255, 255])
 
     # Threshold the HSV image
@@ -25,9 +23,9 @@ while cap.isOpened():
     res = cv2.bitwise_and(frame, frame, mask=mask)
 
     try:
-        x, y = np.where(mask == 255)
-        circle = cv2.circle(res, (int(np.nanmean(y)), int(np.nanmean(x))), 100, (0, 255, 255), 5)
-        cv2.imshow('res', circle)
+        x, y = np.where(mask > 0)
+        circle = cv2.circle(frame, (int(np.nanmean(y)), int(np.nanmean(x))), 40, (0, 255, 255), 5)
+        cv2.imshow('frame', circle)
     except ValueError:
         print("Out of range!")
 
