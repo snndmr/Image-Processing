@@ -12,9 +12,10 @@ while cap.isOpened():
     # S_OpenCV = S_normal * 2.55
     # V_OpenCV = V_normal * 2.55
     # (H – 10, S – 20, V – 20) to(H + 10, S + 20, V + 20)
+    # 178   34.5 104
 
-    lower_blue = np.array([90, 200, 80])
-    upper_blue = np.array([110, 255, 255])
+    lower_blue = np.array([168, 14, 80])
+    upper_blue = np.array([200, 55, 125])
 
     # Threshold the HSV image
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
