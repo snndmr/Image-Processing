@@ -18,9 +18,8 @@ int posOfElement = 0;
 
 void update(Mat image) {
 	Mat instant;
-	Mat element = getStructuringElement(MorphShapes(posOfElement),
-										Size(2 * posOfKernel + 1, 2 * posOfKernel + 1),
-										Point(posOfKernel, posOfKernel));
+	Mat element = getStructuringElement(MorphShapes(posOfElement), Size(2 * posOfKernel + 1, 2 * posOfKernel + 1), Point(posOfKernel, posOfKernel));
+
 	switch(MorphTypes(posOfType)) {
 		case MORPH_ERODE:
 			erode(image, instant, element);
