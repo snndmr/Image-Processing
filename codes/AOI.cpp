@@ -8,6 +8,7 @@ const char* WINDOW_NAME_ORIGINAL = "Original";
 const char* WINDOW_NAME_AOI = "AOI";
 
 Scalar randomColor() {
+	// return Scalar(rand() % 255, rand() % 255, rand() % 255);
 	return Scalar(rand() % 100 + 50, rand() % 100 + 50, rand() % 100 + 50);
 }
 
