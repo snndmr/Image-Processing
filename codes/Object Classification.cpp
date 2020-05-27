@@ -1,10 +1,12 @@
 #include <iostream>
+#include <opencv2/ml.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-using namespace cv;
 using namespace std;
+using namespace cv;
+using namespace cv::ml;
 
 const char *pathOfTuerca = "data/nut/tuerca_%04d.pgm";
 const char *pathOfArandela = "data/ring/arandela_%04d.pgm";
@@ -83,8 +85,9 @@ bool readFolderAndExtractFeatures(String folder, Mat pattern, int label, int num
 	}
 
 	Mat frame;
-
+	cout << endl;
 	for(int imageIndex = 0; images.read(frame); imageIndex += 1) {
+		cout << format("\r Capturing %03d from ", imageIndex) << folder;
 		Mat pre = preprocess(frame, pattern);
 		vector<vector<float>> features = ExtractFeatures(pre);
 		for(int i = 0; i < features.size(); i++) {
@@ -114,12 +117,41 @@ void trainAndTest(Mat pattern) {
 	readFolderAndExtractFeatures(pathOfArandela, pattern, 1, numberOfTest, trainingData, responsesData, testData, testResponsesData);
 	readFolderAndExtractFeatures(pathOfTornillo, pattern, 2, numberOfTest, trainingData, responsesData, testData, testResponsesData);
 
-	cout << "Num of train samples: " << responsesData.size() << endl;
-	cout << "Num of test samples: " << testResponsesData.size() << endl;
+	cout << "\n Num of train samples: " << responsesData.size() << endl;
+	cout << " Num of test samples: " << testResponsesData.size() << endl;
+
+	Mat trainingDataMat(trainingData.size() / 2, 2, CV_32FC1, &trainingData[0]);
+	Mat responses(responsesData.size(), 1, CV_32SC1, &responsesData[0]);
+
+	Mat testDataMat(testData.size() / 2, 2, CV_32FC1, &testData[0]);
+	Mat testResponses(testResponsesData.size(), 1, CV_32FC1, &testResponsesData[0]);
+
+	Ptr<TrainData> tdata = TrainData::create(trainingDataMat, ROW_SAMPLE, responses);
+
+	Ptr<SVM> svm = SVM::create();
+	svm->setType(SVM::C_SVC);
+	svm->setNu(0.05);
+	svm->setKernel(SVM::CHI2);
+	svm->setDegree(1.0);
+	svm->setGamma(2.0);
+	svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
+	svm->train(tdata);
+
+	if(testResponsesData.size() > 0) {
+		// Test the ML Model
+		Mat testPredict;
+		svm->predict(testDataMat, testPredict);
+
+		// Error calculation
+		Mat errorMat = testPredict != testResponses;
+		float error = 100.0f * countNonZero(errorMat) / testResponsesData.size();
+		cout << " Error: " << error << "%%" << endl;
+	}
 }
 
 int main(int argc, const char **argv) {
 	if(argc != 3) {
+		cout << "You must enter image and pattern as arguments" << endl;
 		return EXIT_FAILURE;
 	}
 
