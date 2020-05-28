@@ -74,7 +74,7 @@ vector<vector<float>> ExtractFeatures(Mat pre, vector<int> *left = NULL, vector<
 	return output;
 }
 
-bool readFolderAndExtractFeatures(String folder, Mat pattern, int label, int numberOfTest,
+bool readFolderAndExtractFeatures(const char *folder, Mat pattern, int label, int numberOfTest,
 								  vector<float> &trainingData, vector<int> &responsesData,
 								  vector<float> &testData, vector<float> &testResponsesData) {
 	VideoCapture images;
@@ -84,10 +84,10 @@ bool readFolderAndExtractFeatures(String folder, Mat pattern, int label, int num
 		return false;
 	}
 
-	Mat frame;
 	cout << endl;
+	Mat frame;
 	for(int imageIndex = 0; images.read(frame); imageIndex += 1) {
-		cout << format("\r Capturing %03d from ", imageIndex) << folder;
+		cout << format("\r %03d captured from %s", imageIndex, folder);
 		Mat pre = preprocess(frame, pattern);
 		vector<vector<float>> features = ExtractFeatures(pre);
 		for(int i = 0; i < features.size(); i++) {
@@ -105,7 +105,7 @@ bool readFolderAndExtractFeatures(String folder, Mat pattern, int label, int num
 	return true;
 }
 
-void trainAndTest(Mat pattern) {
+Ptr<SVM> trainAndTest(Mat pattern) {
 	vector< float > trainingData;
 	vector< int > responsesData;
 	vector< float > testData;
@@ -145,8 +145,9 @@ void trainAndTest(Mat pattern) {
 		// Error calculation
 		Mat errorMat = testPredict != testResponses;
 		float error = 100.0f * countNonZero(errorMat) / testResponsesData.size();
-		cout << " Error: " << error << "%%" << endl;
+		cout << " Error: " << error << "%" << endl;
 	}
+	return svm;
 }
 
 int main(int argc, const char **argv) {
@@ -155,7 +156,7 @@ int main(int argc, const char **argv) {
 		return EXIT_FAILURE;
 	}
 
-	Mat image = imread(argv[1], IMREAD_GRAYSCALE);
+	Mat image = imread(argv[1]);
 	Mat pattern = imread(argv[2], IMREAD_GRAYSCALE);
 
 	if(image.empty()) {
@@ -169,7 +170,29 @@ int main(int argc, const char **argv) {
 	}
 	medianBlur(pattern, pattern, 3);
 
-	trainAndTest(pattern);
+	Ptr<SVM> svm = trainAndTest(pattern);
+
+	Mat pre = preprocess(image, pattern);
+
+	vector<int> pos_left, pos_top;
+	vector<vector<float>> features = ExtractFeatures(pre, &pos_left, &pos_top);
+	cout << " Number of objects detected: " << features.size() << endl;
+	imshow("asd", image);
+	for(int i = 0; i < features.size(); i++) {
+		Mat trainingDataMat(1, 2, CV_32FC1, &features[i][0]);
+		float result = svm->predict(trainingDataMat);
+
+		stringstream ss;
+		if(result == 0) {
+			putText(image, "Nut", Point2d(pos_left[i], pos_top[i]), FONT_HERSHEY_DUPLEX, .5, Scalar(255, 255, 0));
+		} else if(result == 1) {
+			putText(image, "Ring", Point2d(pos_left[i], pos_top[i]), FONT_HERSHEY_DUPLEX, .5, Scalar(0, 255, 255));
+		} else if(result == 2) {
+			putText(image, "Screw", Point2d(pos_left[i], pos_top[i]), FONT_HERSHEY_DUPLEX, .5, Scalar(255, 0, 255));
+		}
+	}
+	namedWindow("Image", WINDOW_FREERATIO);
+	imshow("Image", image);
 	waitKey(0);
 	return EXIT_SUCCESS;
 }
