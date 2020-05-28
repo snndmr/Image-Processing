@@ -74,7 +74,7 @@ vector<vector<float>> ExtractFeatures(Mat pre, vector<int> *left = NULL, vector<
 	return output;
 }
 
-bool readFolderAndExtractFeatures(String folder, Mat pattern, int label, int numberOfTest,
+bool readFolderAndExtractFeatures(const char *folder, Mat pattern, int label, int numberOfTest,
 								  vector<float> &trainingData, vector<int> &responsesData,
 								  vector<float> &testData, vector<float> &testResponsesData) {
 	VideoCapture images;
@@ -84,10 +84,10 @@ bool readFolderAndExtractFeatures(String folder, Mat pattern, int label, int num
 		return false;
 	}
 
-	Mat frame;
 	cout << endl;
+	Mat frame;
 	for(int imageIndex = 0; images.read(frame); imageIndex += 1) {
-		cout << format("\r Capturing %03d from ", imageIndex) << folder;
+		cout << format("\r %03d captured from %s", imageIndex, folder);
 		Mat pre = preprocess(frame, pattern);
 		vector<vector<float>> features = ExtractFeatures(pre);
 		for(int i = 0; i < features.size(); i++) {
