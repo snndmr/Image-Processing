@@ -1,7 +1,7 @@
 # Image Processing
 
 - ### Object Detection
-![](outputs/shape_detection.png)
+![](outputs/shape_detection.jpg)
 
 - ### Automated Optical Inspection ( AOI ) 
 ![](outputs/output_AOI.jpg)
