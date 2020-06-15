@@ -12,3 +12,6 @@
 - ### Object Classification with SVM and AOI 
 ![](outputs/output_object_classification.jpg)
 
+- ### Object Classification with SVM and AOI 
+![](outputs/shape_detection.png)
+
