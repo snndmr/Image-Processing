@@ -1,7 +1,7 @@
 # Image Processing
 
-- ### Object Tracking
-![](outputs/shapes.png)
+- ### Object Detection ( AOI ) 
+![](outputs/object_detection.png)
 
 - ### Automated Optical Inspection ( AOI ) 
 ![](outputs/output_AOI.jpg)
@@ -15,3 +15,5 @@
 - ### Object Classification with SVM and AOI 
 ![](outputs/shape_detection.png)
 
+- ### Object Tracking
+![](outputs/shapes.png)
