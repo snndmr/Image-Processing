@@ -12,8 +12,5 @@
 - ### Object Classification with SVM and AOI 
 ![](outputs/output_object_classification.jpg)
 
-- ### Object Classification with SVM and AOI 
-![](outputs/output_object_classification.jpg)
-
 - ### Object Tracking
 ![](outputs/shapes.png)
