@@ -5,9 +5,22 @@
 using namespace cv;
 using namespace std;
 
-const Scalar TOLERANCE = Scalar(10, 36, 36);
 const String WINDOW_NAME_ORIGINAL = "Origininal";
 const String WINDOW_NAME_FIND_COLOR = "Find Color";
+
+const String TRACKBAR_NAME_HUE = "Hue";
+const String TRACKBAR_NAME_SAT = "Sat";
+const String TRACKBAR_NAME_VAL = "Val";
+
+int hue = 5;
+int sat = 40;
+int val = 40;
+
+const int MAX_HUE = 180;
+const int MAX_SAT = 255;
+const int MAX_VAL = 255;
+
+Scalar TOLERANCE = Scalar(hue, sat, val);
 
 struct Bound {
 	Scalar lower;
@@ -49,8 +62,14 @@ void onMouse(int event, int x, int y, int flag, void *userdata) {
 
 	if(event == EVENT_LBUTTONUP) {
 		Bound bound = findBounds((*(Mat *) userdata)(Rect(init, Point(x, y))));
+		cout << "\n\n Bounds: {\n\t" << "lower: " << bound.lower << "\n\tupper: " << bound.upper << "\n\tmiddle:" << bound.middle << "\n }";
 		imshow(WINDOW_NAME_FIND_COLOR, findColor(*(Mat *) userdata, bound.lower, bound.upper));
 	}
+}
+
+void onChange(int pos, void *userdata) {
+	TOLERANCE = Scalar(hue, sat, val);
+	imshow(WINDOW_NAME_ORIGINAL, *(Mat *) userdata);
 }
 
 int main(int argc, const char *argv[]) {
@@ -60,7 +79,10 @@ int main(int argc, const char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	namedWindow(WINDOW_NAME_ORIGINAL, WINDOW_AUTOSIZE);
+	namedWindow(WINDOW_NAME_ORIGINAL, WINDOW_FREERATIO);
+	createTrackbar(TRACKBAR_NAME_HUE, WINDOW_NAME_ORIGINAL, &hue, MAX_HUE, onChange, &image);
+	createTrackbar(TRACKBAR_NAME_SAT, WINDOW_NAME_ORIGINAL, &sat, MAX_SAT, onChange, &image);
+	createTrackbar(TRACKBAR_NAME_VAL, WINDOW_NAME_ORIGINAL, &val, MAX_VAL, onChange, &image);
 	setMouseCallback(WINDOW_NAME_ORIGINAL, onMouse, &image);
 	imshow(WINDOW_NAME_ORIGINAL, image);
 	waitKey(0);
